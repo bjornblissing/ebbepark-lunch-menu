@@ -2,6 +2,8 @@
 
 A Python web scraper that fetches and displays lunch menus from multiple restaurants in a clean, formatted output.
 
+Live Site: [https://bjornblissing.github.io/ebbepark-lunch-menu/](https://bjornblissing.github.io/ebbepark-lunch-menu/)
+
 ## Supported Restaurants
 
 - **Laszlos Krog** - Fetches weekly menu from their website
