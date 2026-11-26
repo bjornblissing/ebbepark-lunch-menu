@@ -56,6 +56,12 @@ Render all restaurant menus as a static `index.html` page:
 python generate_website.py
 ```
 
+## Automatic Publishing
+
+The GitHub Actions workflow in `.github/workflows/publish.yml` generates the website and publishes it to GitHub Pages every weekday at 09:30 Swedish time. It can also be started manually from the Actions tab.
+
+This requires GitHub Pages to be enabled for the repository with **GitHub Actions** as the source (Settings → Pages → Build and deployment).
+
 ## Dependencies
 
 - **requests** - HTTP requests for fetching web pages

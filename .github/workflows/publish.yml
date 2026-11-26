@@ -1,0 +1,72 @@
+name: Publish lunch menu
+
+on:
+  schedule:
+    # Weekdays at 09:30 Swedish time. The timezone makes the schedule
+    # follow daylight saving instead of drifting an hour against UTC.
+    - cron: "30 9 * * 1-5"
+      timezone: "Europe/Stockholm"
+  # Allow a manual run from the Actions tab.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never run two deployments at once, and let a running one finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      # EasyOCR downloads its models on first use. Keep them between runs.
+      - name: Cache EasyOCR models
+        uses: actions/cache@v6
+        with:
+          path: ~/.EasyOCR
+          key: easyocr-models-sv-en-v1
+
+      - name: Install dependencies
+        run: |
+          # The runner has no GPU. Install the CPU-only PyTorch build first
+          # so that easyocr does not pull in the much larger CUDA build.
+          python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r requirements.txt
+
+      - name: Generate website
+        run: |
+          python generate_website.py
+          mkdir _site
+          mv index.html _site/
+
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
