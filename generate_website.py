@@ -19,6 +19,25 @@ from don_luigi import don_luigi
 OUTPUT_FILE = "index.html"
 LOCAL_TIMEZONE = ZoneInfo("Europe/Stockholm")
 
+# Ask crawlers to stay away from the page. "robots" is the catch-all that
+# search engines and most other well-behaved bots read:
+#   noindex/nofollow          - keep the page out of search indexes and do not
+#                               follow its links
+#   noarchive/nosnippet       - no cached copies or text previews (Bing also
+#                               treats noarchive as an opt-out from AI use)
+#   noimageindex/notranslate  - no image indexing or translated copies
+#   noai/noimageai            - opt out of AI training (non-standard, but
+#                               honoured by some AI crawlers)
+# The page is hosted on GitHub Pages, which cannot send an X-Robots-Tag
+# response header, so the meta tags are the only per-page mechanism.
+_ROBOTS_DIRECTIVES = (
+    "noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate, "
+    "noai, noimageai"
+)
+ROBOTS_META = f"""<meta name="robots" content="{_ROBOTS_DIRECTIVES}">
+  <meta name="googlebot" content="{_ROBOTS_DIRECTIVES}">
+  <meta name="bingbot" content="{_ROBOTS_DIRECTIVES}">"""
+
 _SWEDISH_WEEKDAYS = [
     "måndag", "tisdag", "onsdag", "torsdag", "fredag", "lördag", "söndag",
 ]
@@ -205,6 +224,7 @@ def generate_website(restaurants, output_file=OUTPUT_FILE):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {ROBOTS_META}
   <title>Dagens Lunch i Ebbepark</title>
   <style>{STYLE}</style>
 </head>
